@@ -1,3 +1,7 @@
+use std::process::Command;
+
+use log::*;
+
 pub fn insert_password(passname: &str, data: &str) {}
 
 pub fn get_password(passname: &str) -> String {

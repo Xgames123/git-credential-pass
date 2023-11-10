@@ -50,6 +50,13 @@ fn main() {
         .init()
         .unwrap();
 
+    let template_comp = templating::parse_template("{password}\nlogin: {username}");
+
+    let things = templating::get_params(template_comp, "passwd\nnotes: aa\nlogin: ldev").unwrap();
+
+    debug!("{:?}", things);
+    return;
+
     let params = paramparsing::parse_from_stdin();
 
     debug!("params={:?}", &params);
