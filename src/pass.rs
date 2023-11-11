@@ -21,19 +21,22 @@ fn wait_validate(proc: std::process::Child) -> Output {
     output
 }
 
+macro_rules! pass_cmd {
+    () => {
+        Command::new("pass")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+    };
+}
+
 pub fn remove_password(passname: &str) {
-    let proc = spawn_pass(Command::new("pass").arg("rm").arg("-f").arg(passname));
+    let proc = spawn_pass(pass_cmd!().arg("rm").arg("-f").arg(passname));
     wait_validate(proc);
 }
 
 pub fn insert_password(passname: &str, data: &str) {
-    let mut pass_proc = spawn_pass(
-        Command::new("pass")
-            .arg("insert")
-            .arg("-m")
-            .arg(passname)
-            .stdin(Stdio::piped()),
-    );
+    let mut pass_proc = spawn_pass(pass_cmd!().arg("insert").arg("-m").arg(passname));
 
     let mut stdin = pass_proc.stdin.take().unwrap();
     stdin
@@ -45,7 +48,7 @@ pub fn insert_password(passname: &str, data: &str) {
 }
 
 pub fn get_password(passname: &str) -> String {
-    let pass_proc = spawn_pass(Command::new("pass").arg("show").arg(passname));
+    let pass_proc = spawn_pass(pass_cmd!().arg("show").arg(passname));
     let output = wait_validate(pass_proc);
 
     String::from_utf8(output.stdout).unwrap_or_else(|err| {

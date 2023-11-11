@@ -42,7 +42,7 @@ pub fn parse(str: &str) -> Result<SyntaxTree, TemplatingError> {
         if in_cap_name {
             if char == '}' && !escape {
                 let token = Token::Capture(cap_name.clone());
-                if !output.last().is_some_and(|last: &Token| last.is_capture()) {
+                if output.last().is_some_and(|last: &Token| last.is_capture()) {
                     return Err(TemplatingError::InvalidTokenOrder(
                         output.last().unwrap().clone(),
                         token,
@@ -71,7 +71,7 @@ pub fn populate(template: &SyntaxTree, params: &HashMap<String, String>) -> Stri
     for token in template.iter() {
         match token {
             Token::Match(char) => output.push(*char),
-            Token::Capture(name) => output.push_str(params.get(name).unwrap()),
+            Token::Capture(name) => output.push_str(params.get(name).unwrap_or(&String::new())),
         }
     }
 

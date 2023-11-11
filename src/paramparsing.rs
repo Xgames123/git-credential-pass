@@ -5,7 +5,9 @@ use std::{
 
 pub fn write_to_stdout(params: HashMap<String, String>) {
     for (key, value) in params.iter() {
-        println!("{}={}", key, value);
+        if key != "" && value != "" {
+            println!("{}={}", key, value);
+        }
     }
     println!("");
 }
