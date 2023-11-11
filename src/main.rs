@@ -1,8 +1,4 @@
-use std::{
-    collections::HashMap,
-    fs,
-    process::{self, Command, ExitCode, ExitStatus},
-};
+use std::fs;
 
 use clap::{Parser, Subcommand};
 use log::*;
@@ -18,12 +14,12 @@ mod verbosity;
 #[command(about = "A simple git credential helper for gnu pass", long_about = None)]
 struct Cli {
     #[arg(long, short = 't')]
-    ///The path to the template file (You can use template syntax in this path)
+    ///The path to the template file (You can use template syntax here)
     template: String,
 
     #[arg(long, short = 'p')]
     ///The password name ex: 'www/github.com/main' (You can use template syntax in here)
-    password: String,
+    pass_name: String,
 
     #[command(flatten)]
     verbosity: verbosity::Verbosity,
@@ -34,12 +30,16 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    ///Stores the credentials in the backing helper
+    ///Store the credentials in the password store
     Store,
-    ///Deletes the credentials from the backing helper
+    ///Delete the credentials from the password store
     Erase,
-    ///Gets the stored credentials
+    ///Gets the credentials stored in the password store
     Get,
+}
+
+macro_rules! die {
+    ($($arg:tt)+) => {log::error!("FATAL: {}", format!($($arg)+)); std::process::exit(-1);}
 }
 
 fn main() {
@@ -50,40 +50,47 @@ fn main() {
         .init()
         .unwrap();
 
-    let template_comp = templating::parse_template("{password}\nlogin: {username}");
-
-    let things = templating::get_params(template_comp, "passwd\nnotes: aa\nlogin: ldev").unwrap();
-
-    debug!("{:?}", things);
-    return;
-
     let params = paramparsing::parse_from_stdin();
 
     debug!("params={:?}", &params);
 
-    let template_path = templating::populate(&cli.template, &params);
+    let template_path = templating::populate(
+        &templating::parse(&cli.template).unwrap_or_else(|err| {
+            die!("Failed to parse template '{}'\n{}", &cli.template, err);
+        }),
+        &params,
+    );
     debug!("template_path={}", template_path);
 
     let template = fs::read_to_string(&template_path).unwrap_or_else(|err| {
-        error!(
-            "FATAL: Could not read template at '{}'\n{}",
-            template_path, err
-        );
-        process::exit(-1);
+        die!("Could not read template at '{}'\n{}", template_path, err);
     });
+    let template = templating::parse(&template).unwrap_or_else(|err| {
+        die!("Failed to parse template at '{}'\n{}", template_path, err);
+    });
+
+    let pass_name = templating::populate(
+        &templating::parse(&cli.pass_name).unwrap_or_else(|err| {
+            die!("Could not parse template '{}'\n{}", &cli.template, err);
+        }),
+        &params,
+    );
 
     match cli.operation {
         Commands::Get => {
-            let output = HashMap::new();
-            let pass_output = pass::get_password(&cli.password);
+            let pass_output = pass::get_password(&pass_name);
+            //unwrap here because the template is already validated when parsing
+            let output = templating::get_params(&template, &pass_output).unwrap();
 
             paramparsing::write_to_stdout(output);
         }
         Commands::Store => {
             let template_resolved = templating::populate(&template, &params);
 
-            pass::insert_password(&cli.password, &template_resolved);
+            pass::insert_password(&pass_name, &template_resolved);
         }
-        Commands::Erase => {}
+        Commands::Erase => {
+            pass::remove_password(&pass_name);
+        }
     }
 }

@@ -7,6 +7,14 @@ pub enum Token {
     Capture(String),
     Match(char),
 }
+impl Token {
+    fn is_capture(&self) -> bool {
+        match self {
+            Token::Capture(_) => true,
+            _ => false,
+        }
+    }
+}
 
 #[derive(Debug, Error)]
 pub enum TemplatingError {
@@ -16,39 +24,54 @@ pub enum TemplatingError {
 
 pub type SyntaxTree = Vec<Token>;
 
-pub fn parse_template(str: &str) -> SyntaxTree {
+pub fn parse(str: &str) -> Result<SyntaxTree, TemplatingError> {
     let mut output = vec![];
 
-    let mut capture_start = Option::None;
-    for (i, char) in str.char_indices() {
-        if char == '{' {
-            capture_start = Option::Some(i + 1);
+    let mut cap_name: String = String::new();
+    let mut in_cap_name = false;
+    let mut escape = false;
+    for char in str.chars() {
+        if char == '\\' {
+            escape = true;
             continue;
         }
-        if let Some(cap_start) = capture_start {
-            if char == '}' {
-                output.push(Token::Capture(str[cap_start..i].to_string()));
-                capture_start = None;
+        if !escape && char == '{' {
+            in_cap_name = true;
+            continue;
+        }
+        if in_cap_name {
+            if char == '}' && !escape {
+                let token = Token::Capture(cap_name.clone());
+                if !output.last().is_some_and(|last: &Token| last.is_capture()) {
+                    return Err(TemplatingError::InvalidTokenOrder(
+                        output.last().unwrap().clone(),
+                        token,
+                    ));
+                }
+                output.push(token);
+                cap_name.clear();
+                in_cap_name = false;
+            } else {
+                cap_name.push(char);
             }
+            escape = false;
             continue;
         }
 
         output.push(Token::Match(char));
+        escape = false;
     }
 
-    output
+    Ok(output)
 }
 
-pub fn populate(template: &str, params: &HashMap<String, String>) -> String {
-    let mut output = template.to_string();
-    for (key, value) in params.iter() {
-        // trace!("output={}", &output);
-        loop {
-            if let Some(range) = find_key(key, &output) {
-                output.replace_range(range, value);
-            } else {
-                break;
-            }
+pub fn populate(template: &SyntaxTree, params: &HashMap<String, String>) -> String {
+    let mut output = String::with_capacity(template.len());
+
+    for token in template.iter() {
+        match token {
+            Token::Match(char) => output.push(*char),
+            Token::Capture(name) => output.push_str(params.get(name).unwrap()),
         }
     }
 
@@ -56,7 +79,7 @@ pub fn populate(template: &str, params: &HashMap<String, String>) -> String {
 }
 
 pub fn get_params(
-    template: SyntaxTree,
+    template: &SyntaxTree,
     input: &str,
 ) -> Result<HashMap<String, String>, TemplatingError> {
     let mut output = HashMap::new();
