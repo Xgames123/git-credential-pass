@@ -1,69 +1,74 @@
 # git-credential-pass
 A Simple [git credential helper](https://git-scm.com/docs/gitcredentials) for [gnu pass](https://www.passwordstore.org/)
-If the templating language is not powerful enough and you only want to read passwords from pass look at (pass-git-helper)[https://github.com/languitar/pass-git-helper]
 
-## Features
+If the templating language is not powerful enough and you only want to read passwords from pass look at [pass-git-helper](https://github.com/languitar/pass-git-helper)
+
+# Features
 * Can store, get and erase passwords from pass
 * Mostly uses .gitconfig for configuration
 * Very simple template language
 
-## Installation
+# Installation
 
-### Archlinux
+## Archlinux
 
 Install git-credential-pass from aur
 
-### Debian/Ubuntu
+## Debian/Ubuntu
 
-Download latest release and use ```dpkg -i <FILE>``` to install it
+Download [latest release](https://github.com/Xgames123/git-credential-pass/releases/latest) and use ```dpkg -i <FILE>``` to install it
 
-## Configuring
+# Configuring
 
-~/.config/git-credential-pass/git.ldev.eu.org.template
+```~/.config/git-credential-pass/git.ldev.eu.org.template```
 
 ```
 {password}
 login: {username}
 ```
 
-.gitconfig
+```.gitconfig```
 
-```toml
+```ini
 [credential]
   helper = pass --pass-name "git/{protocol}/{host}" --template "~/.config/git-credential-pass/{host}.template"
 ```
 > **NOTE**
 > Text between {} gets replaced by the value returned by git. See [custom_helpers](https://git-scm.com/docs/gitcredentials#_custom_helpers).
+
 > **NOTE**
 > Use \\ to escape characters \\{ will be treated as a literal
 
 
-### More examples
+## More examples
 
-#### Store passwords as git/{host}/{username}
-.gitconfig
-```toml
+### Store passwords as git/{host}/{username}
+
+```.gitconfig```
+
+```ini
 [credentials]
     helper = pass -p "git/{host}/{username}" --template "~/.config/git-credential-pass/{host}.template"
 ```
 
-#### Use only for a specific host
-.gitconfig
+### Use only for a specific host
+```.gitconfig```
 
-```toml
+```ini
 [credentials "https://git.ldev.eu.org"] # only use git-credential-pass for git.ldev.eu.org
-	useHttpPath = true
+    useHttpPath = true
     helper = pass -p "git/ldev" --template "~/.config/git-credential-pass/git.ldev.eu.org.template"
 [credentials] # use cache for everything else
     helper=cache
 ```
 
-#### Store credentials using url
-.gitconfig
+### Store credentials using url
 
-```toml
+```.gitconfig```
+
+```ini
 [credentials]
-	useHttpPath = true
+    useHttpPath = true # this line is to make git send the path
     # Store the credentials using the url path
     helper = pass -p "git/{path}" --template "~/.config/git-credential-pass/template.template"
 ```
