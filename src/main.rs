@@ -1,7 +1,6 @@
-use std::fs;
-
 use clap::{Parser, Subcommand};
 use log::*;
+use std::fs;
 use utils::*;
 
 mod paramparsing;

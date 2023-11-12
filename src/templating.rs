@@ -1,5 +1,5 @@
 use log::*;
-use std::{collections::HashMap, ops::Range};
+use std::collections::HashMap;
 use thiserror::Error;
 
 #[derive(Debug, Clone)]
@@ -147,66 +147,4 @@ fn solve_capture(
         }
     }
     output.insert(capture_name.to_string(), captured);
-}
-
-fn find_key(key: &str, haystack: &str) -> Option<Range<usize>> {
-    let key_len = key.chars().count();
-    // trace!("key={}", key);
-    // trace!("haystack={}", haystack);
-    let mut match_count = 0;
-    let mut start_index = 0;
-    for (i, character) in haystack.char_indices() {
-        // trace!("match_count={}, char={}", match_count, character);
-        if match_count == 0 {
-            if character == '{' {
-                start_index = i;
-                match_count += 1;
-            }
-            continue;
-        }
-
-        if match_count == key_len + 1 {
-            // trace!("end");
-            if character == '}' {
-                return Some(start_index..i + 1);
-            }
-            match_count = 0;
-            continue;
-        }
-
-        // trace!("matching chars");
-        match get_char(key, match_count - 1) {
-            Some(char) => {
-                // trace!("{}={}", character, char);
-                if character == char {
-                    match_count += 1
-                } else {
-                    match_count = 0
-                }
-            }
-            None => match_count = 0,
-        }
-    }
-
-    None
-}
-
-fn get_char(input: &str, start: usize) -> Option<char> {
-    input
-        .get(char_start_to_range(input, start))
-        .and_then(|str| str.chars().next())
-}
-
-///Returns the range that where the code point is in given the starting index
-fn char_start_to_range(str: &str, start: usize) -> Range<usize> {
-    for (i, _) in str.as_bytes()[start..].iter().enumerate() {
-        if i == 0 {
-            continue;
-        }
-        if str.is_char_boundary(start + i) {
-            // trace!("{}..{}", start, start + i);
-            return start..start + i;
-        }
-    }
-    return start..str.len();
 }

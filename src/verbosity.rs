@@ -26,10 +26,6 @@ impl Verbosity {
 
         LogLevelNum::Info
     }
-
-    pub fn is_quied(&self) -> bool {
-        self.quiet
-    }
 }
 impl fmt::Display for Verbosity {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
