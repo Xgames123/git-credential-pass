@@ -2,16 +2,20 @@ use std::fs;
 
 use clap::{Parser, Subcommand};
 use log::*;
+use utils::*;
 
 mod paramparsing;
 mod pass;
 mod templating;
+mod utils;
 mod verbosity;
 
+#[cfg(test)]
+mod tests;
+
 #[derive(Parser)]
-#[command(author, version)]
+#[command(author, version, about, long_about=None)]
 #[command(propagate_version = true)]
-#[command(about = "A simple git credential helper for gnu pass", long_about = None)]
 struct Cli {
     #[arg(long, short = 't')]
     ///The path to the template file (You can use template syntax here)
@@ -38,10 +42,6 @@ enum Commands {
     Get,
 }
 
-macro_rules! die {
-    ($($arg:tt)+) => {log::error!("FATAL: {}", format!($($arg)+)); std::process::exit(-1);}
-}
-
 fn main() {
     let cli = Cli::parse();
     stderrlog::new()
@@ -54,12 +54,12 @@ fn main() {
 
     debug!("params={:?}", &params);
 
-    let template_path = templating::populate(
+    let template_path = abs_path(&templating::populate(
         &templating::parse(&cli.template).unwrap_or_else(|err| {
             die!("Failed to parse template '{}'\n{}", &cli.template, err);
         }),
         &params,
-    );
+    ));
     debug!("template_path={}", template_path);
 
     let template = fs::read_to_string(&template_path).unwrap_or_else(|err| {
