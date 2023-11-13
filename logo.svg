@@ -29,8 +29,8 @@
      showborder="false"
      borderlayer="false"
      inkscape:zoom="4"
-     inkscape:cx="68.625"
-     inkscape:cy="76"
+     inkscape:cx="52.875"
+     inkscape:cy="79.75"
      inkscape:current-layer="layer1">
     <inkscape:page
        x="0"
@@ -57,14 +57,23 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
+    <rect
+       style="fill:none;stroke:#ffd5a0;stroke-width:2.91041667;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:40.74583155,40.74583155;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect2"
+       width="49.805019"
+       height="49.805019"
+       x="-51.36084"
+       y="-51.36084"
+       ry="0"
+       transform="scale(-1)" />
     <text
        xml:space="preserve"
-       transform="matrix(0.16404526,0,0,0.16404526,-2.6963787,20.736787)"
+       transform="matrix(0.96487999,0,0,0.96487999,-145.39732,-5.7744591)"
        id="text1"
        style="font-size:26.6667px;font-family:'JetBrainsMono Nerd Font';-inkscape-font-specification:'JetBrainsMono Nerd Font';text-align:center;white-space:pre;shape-inside:url(#rect1);shape-padding:0;display:inline;fill:#ffd5a0;fill-opacity:1;stroke-width:10;stroke-linecap:round;stroke-linejoin:round"><tspan
-         x="25.683305"
+         x="153.68355"
          y="42.837862"
-         id="tspan2">git-credential-pass</tspan></text>
+         id="tspan2">GCP</tspan></text>
   </g>
   <metadata
      id="metadata1">

@@ -12,11 +12,11 @@ If the templating language is not powerful enough and you only want to read pass
 
 ## Archlinux
 
-Install git-credential-pass from aur
+Install git-credential-pass from AUR [ArchLinux wiki](https://wiki.archlinux.org/title/Arch_User_Repository#Installing_and_upgrading_packages)
 
 ## Debian/Ubuntu
 
-Download [latest release](https://github.com/Xgames123/git-credential-pass/releases/latest) and use ```dpkg -i <FILE>``` to install it
+Download the .deb file from the [latest release](https://github.com/Xgames123/git-credential-pass/releases/latest) and use ```dpkg -i file_you_just_downloaded.deb``` to install it
 
 # Configuring
 
@@ -27,7 +27,7 @@ Download [latest release](https://github.com/Xgames123/git-credential-pass/relea
 login: {username}
 ```
 
-```.gitconfig```
+```~/.gitconfig```
 
 ```ini
 [credential]
@@ -44,7 +44,7 @@ login: {username}
 
 ### Store passwords as git/{host}/{username}
 
-```.gitconfig```
+```~/.gitconfig```
 
 ```ini
 [credentials]
@@ -52,7 +52,7 @@ login: {username}
 ```
 
 ### Use only for a specific host
-```.gitconfig```
+```~/.gitconfig```
 
 ```ini
 [credentials "https://git.ldev.eu.org"] # only use git-credential-pass for git.ldev.eu.org
@@ -64,7 +64,7 @@ login: {username}
 
 ### Store credentials using url
 
-```.gitconfig```
+```~/.gitconfig```
 
 ```ini
 [credentials]
