@@ -1,4 +1,7 @@
-# git-credential-pass
+<p align="center">
+  <img src="https://github.com/Xgames123/git-credential-pass/blob/main/logo.png?raw=true" alt="logo"/>
+</p>
+
 A Simple [git credential helper](https://git-scm.com/docs/gitcredentials) for [gnu pass](https://www.passwordstore.org/)
 
 If the templating language is not powerful enough and you only want to read passwords from pass look at [pass-git-helper](https://github.com/languitar/pass-git-helper)
