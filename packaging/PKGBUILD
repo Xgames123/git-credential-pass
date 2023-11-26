@@ -2,7 +2,7 @@ pkgver=1.0.0
 pkgrel=1
 
 pkgname=git-credential-pass
-pkgdesc="A simple git credentials helper for gnu pass"
+pkgdesc="A simple git credentials helper for pass"
 license=('MIT')
 url="https://github.com/Xgames123/$pkgname"
 maintainer="ldev <ldev dot eu dot org>"

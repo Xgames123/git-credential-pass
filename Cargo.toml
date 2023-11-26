@@ -1,6 +1,6 @@
 [package]
 name = "git-credential-pass"
-description="A simple git credentials helper for gnu pass"
+description="A simple git credentials helper for pass"
 authors=["ldev <ldev dot eu dot org>"]
 version = "1.0.0"
 edition = "2021"
