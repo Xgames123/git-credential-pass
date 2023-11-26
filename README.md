@@ -50,7 +50,7 @@ login: {username}
 ```~/.gitconfig```
 
 ```ini
-[credentials]
+[credential]
     helper = pass -p "git/{host}/{username}" --template "~/.config/git-credential-pass/{host}.template"
 ```
 
@@ -58,10 +58,10 @@ login: {username}
 ```~/.gitconfig```
 
 ```ini
-[credentials "https://git.ldev.eu.org"] # only use git-credential-pass for git.ldev.eu.org
+[credential "https://git.ldev.eu.org"] # only use git-credential-pass for git.ldev.eu.org
     useHttpPath = true
     helper = pass -p "git/ldev" --template "~/.config/git-credential-pass/git.ldev.eu.org.template"
-[credentials] # use cache for everything else
+[credential] # use cache for everything else
     helper=cache
 ```
 
