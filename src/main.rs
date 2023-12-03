@@ -3,6 +3,8 @@ use log::*;
 use std::fs;
 use utils::*;
 
+use crate::pass::PassError;
+
 mod paramparsing;
 mod pass;
 mod templating;
@@ -75,21 +77,26 @@ fn main() {
         &params,
     );
 
-    match cli.operation {
-        Commands::Get => {
-            let pass_output = pass::get_password(&pass_name);
-            //unwrap here because the template is already validated when parsing
+    let result: Result<(), PassError> = match cli.operation {
+        Commands::Get => pass::get_password(&pass_name).and_then(|pass_output| {
             let output = templating::get_params(&template, &pass_output).unwrap();
 
-            paramparsing::write_to_stdout(output);
-        }
+            Ok(paramparsing::write_to_stdout(output))
+        }),
         Commands::Store => {
             let template_resolved = templating::populate(&template, &params);
 
-            pass::insert_password(&pass_name, &template_resolved);
+            pass::insert_password(&pass_name, &template_resolved)
         }
-        Commands::Erase => {
-            pass::remove_password(&pass_name);
+        Commands::Erase => pass::remove_password(&pass_name),
+    };
+    result.unwrap_or_else(|err| match err {
+        pass::PassError::Io(err) => {
+            die!("{}", err);
         }
-    }
+        pass::PassError::Non0ExitCode(code, _) => {
+            error!("{}", err);
+            std::process::exit(code);
+        }
+    });
 }
