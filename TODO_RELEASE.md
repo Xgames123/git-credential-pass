@@ -5,3 +5,4 @@
 6. bump aur/PKGBUILD
 7. makepkg_deb.sh
 8. regen checksums (aur/PKGBUILD) and .SRCINFO
+9. close issues fixed in release
