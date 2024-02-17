@@ -1,6 +1,5 @@
 use log::*;
 use std::{
-    error::Error,
     io::Write,
     process::{Command, Output, Stdio},
 };

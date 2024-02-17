@@ -1,6 +1,5 @@
 # script to verify versions
 
-
 cargo_ver=$(rg -or "\$1" "^version[\t ]*=[\t ]*\"([0-9]\.[0-9]\.[0-9])\"" Cargo.toml)
 echo "version: $cargo_ver"
 pkg_ver=$(rg -or "\$1" "^pkgver=[\t ]*([0-9]\.[0-9]\.[0-9])" packaging/PKGBUILD)

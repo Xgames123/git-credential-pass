@@ -20,7 +20,6 @@ depends=(
 
 prepare() {
     cd "$srcdir/$pkgname-$pkgver"
-    
     rm -f Cargo.lock
     export RUSTUP_TOOLCHAIN=stable
     cargo fetch

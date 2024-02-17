@@ -3,8 +3,8 @@ use crate::utils;
 #[test]
 fn path_home_dir() {
     assert_eq!(
-        utils::abs_path("~/.config/../.config/git-credential-pass"),
-        format!("{}/.config/git-credential-pass", env!("HOME"))
+        utils::abs_path("~/gcp_testdir/../gcp_testdir/testdir2"),
+        format!("{}/gcp_testdir/testdir2", env!("HOME"))
     )
 }
 

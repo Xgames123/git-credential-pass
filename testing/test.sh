@@ -1,3 +1,13 @@
+#!/bin/bash
+
+if [ -d testing ] ; then
+  cd testing
+fi
+
+
+echo "CREATING TEST FILES"
+mkdir ~/gcp_testdir
+mkdir ~/gcp_testdir/testdir2
 cargo build
 export RUST_BACKTRACE=full
 bin_path="../target/debug/git-credential-pass"
@@ -69,7 +79,6 @@ pass_not_exist "dev/git.ldev.eu.org"
 test_store_err "invalid_token_order" "$tmpls/invalidtokenorder.template" "dev/invalid_token_order" ""
 
 echo "ALL TESTS PASSED"
+echo "running cargo test"
+cargo test
 exit 0
-
-
-
