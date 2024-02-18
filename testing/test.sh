@@ -24,11 +24,11 @@ run_test()
 {
   echo ""
   echo "RUNNING $1"
-  output=$(echo "$payload" | $bin_path -vvv -t $2 -p $3 $4)
+  output=$(echo "$payload" | $bin_path -r 3 -vvv -t $2 -p $3 $4)
 
   if [ $? != $5 ] ; then
     echo "TEST FAILED: exit code: $? expected exitcode: $5"
-    exit -1
+    exit 1
   fi
 
   if [ "$output" != "$6" ] ; then
@@ -36,7 +36,7 @@ run_test()
     echo "$6"
     echo "Got output:"
     echo "$output"
-    exit -1
+    exit 1
   fi
   echo ""
 }
@@ -59,12 +59,14 @@ pass_exist(){
   pass show $1
   if [ $? != 0 ] ; then
     echo "TEST FAILED: password not in store"
+    exit 1
   fi
 }
 pass_not_exist(){
   pass show $1
   if [ $? == 0 ] ; then
     echo "TEST FAILED: password not deleted"
+    exit 1
   fi
 }
 

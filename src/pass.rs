@@ -9,7 +9,7 @@ fn spawn_pass(cmd: &mut Command) -> Result<std::process::Child, PassError> {
     Ok(cmd.spawn()?)
 }
 fn wait_validate(proc: std::process::Child) -> Result<Output, PassError> {
-    let output = proc.wait_with_output().unwrap();
+    let output = proc.wait_with_output()?;
     if !output.status.success() {
         return Err(PassError::Non0ExitCode(
             output.status.code().unwrap_or_default(),
@@ -36,28 +36,70 @@ pub enum PassError {
     Non0ExitCode(i32, String),
 }
 
-pub fn remove_password(passname: &str) -> Result<(), PassError> {
-    let proc = spawn_pass(pass_cmd!().arg("rm").arg("-f").arg(passname))?;
-    wait_validate(proc)?;
+fn retry_pass(cmd: &mut Command, retries: u32) -> Result<Output, PassError> {
+    let mut output = None;
+    for i in 0..retries + 1 {
+        let pass_proc = spawn_pass(cmd)?;
+        output = Some(match wait_validate(pass_proc) {
+            Ok(o) => o,
+            Err(err) => {
+                if i == retries {
+                    return Err(err);
+                }
+                error!("{} Retrying {}/{}", err, i, retries);
+                continue;
+            }
+        });
+        break;
+    }
+    Ok(output.unwrap()) //loop guarantied to run at least once
+}
+
+pub fn remove_password(passname: &str, retries: u32) -> Result<(), PassError> {
+    debug!("removing password");
+    retry_pass(pass_cmd!().arg("rm").arg("-f").arg(passname), retries)?;
     Ok(())
 }
 
-pub fn insert_password(passname: &str, data: &str) -> Result<(), PassError> {
-    let mut pass_proc = spawn_pass(pass_cmd!().arg("insert").arg("-m").arg(passname))?;
+pub fn insert_password(passname: &str, data: &str, retries: u32) -> Result<(), PassError> {
+    debug!("inserting password");
+    for i in 0..retries + 1 {
+        let mut pass_proc = match spawn_pass(pass_cmd!().arg("insert").arg("-m").arg(passname)) {
+            Ok(proc) => proc,
+            Err(err) => {
+                if i == retries {
+                    return Err(err);
+                }
+                error!("{} Retrying {}/{}", err, i, retries);
+                continue;
+            }
+        };
 
-    let mut stdin = pass_proc.stdin.take().unwrap();
-    stdin
-        .write_all(data.as_bytes())
-        .expect("Failed to write to stdin of pass process");
-    drop(stdin);
+        let mut stdin = pass_proc.stdin.take().unwrap();
+        stdin
+            .write_all(data.as_bytes())
+            .expect("Failed to write to stdin of pass process");
+        drop(stdin);
 
-    wait_validate(pass_proc)?;
+        match wait_validate(pass_proc) {
+            Ok(_) => {}
+            Err(err) => {
+                if i == retries {
+                    return Err(err);
+                }
+                error!("{} Retrying {}/{}", err, i, retries);
+                continue;
+            }
+        };
+        break;
+    }
+
     Ok(())
 }
 
-pub fn get_password(passname: &str) -> Result<String, PassError> {
-    let pass_proc = spawn_pass(pass_cmd!().arg("show").arg(passname))?;
-    let output = wait_validate(pass_proc)?;
+pub fn get_password(passname: &str, retries: u32) -> Result<String, PassError> {
+    debug!("getting password");
+    let output = retry_pass(pass_cmd!().arg("show").arg(passname), retries)?;
 
     Ok(String::from_utf8(output.stdout).unwrap_or_else(|err| {
         error!("Pass output contains invalid utf8 characters.");
